@@ -7,42 +7,90 @@ import java.sql.SQLException;
 import de.pentagonlp.database.drivertypes.DatabaseServerConnection;
 import de.pentagonlp.database.exceptions.InvalidConnectionDetailsException;
 
+/**
+ * Connection to a MySql Server
+ * 
+ * @author PentagonLP
+ */
 public class MysqlConnection extends DatabaseServerConnection {
-	
-	public static final String DEFAULT_HOST = "localhost";
+
+	/**
+	 * Default MySql port
+	 */
 	public static final int DEFAULT_PORT = 3306;
+	/**
+	 * Select no database if none is given
+	 */
 	public static final String DEFAULT_DATABASE = "";
+	/**
+	 * Default MySql username
+	 */
 	public static final String DEFAULT_USERNAME = "root";
+	/**
+	 * Default password for default MySql user {@code root} is no password
+	 */
 	public static final String DEFAULT_PASSWORD = "";
 
+	/**
+	 * Creates a {@link MysqlConnection} with default connection details and
+	 * {@code autoReconnect = false}
+	 * 
+	 */
 	public MysqlConnection() throws InvalidConnectionDetailsException {
 		super();
 	}
 
-	public MysqlConnection(String Host, int Port, String Database, String Username, String Password,
-			boolean autoRecon) throws InvalidConnectionDetailsException {
-		super(Host, Port, Database, Username, Password, autoRecon);
-	}
-
-	public MysqlConnection(String Host, int Port, String Database, String Username, String Password)
-			throws InvalidConnectionDetailsException {
-		super(Host, Port, Database, Username, Password);
-	}
-
-	@Override
-	public Connection getConnection(String host, int port, String database, String username, String password) throws SQLException {
-		return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true&useTimezone=true&serverTimezone=UTC",username, password);
-	}
-	
 	/**
-     * Set Default Values for Database connection
-     * @throws InvalidConnectionDetailsException 
-     * 
-     */
-    public void setDefaultConnectionValues() throws InvalidConnectionDetailsException {
-    	setConnectionValues(DEFAULT_HOST, DEFAULT_PORT, DEFAULT_DATABASE, DEFAULT_USERNAME, DEFAULT_PASSWORD);
-    }
+	 * Creates a {@link MysqlConnection} with given connection details and
+	 * {@code autoReconnect = false}
+	 * 
+	 * @param host     Hostname of the MySql Server
+	 * @param port     Port of the MySql Server
+	 * @param database Database to use
+	 * @param username Username to log into the MySql Server with
+	 * @param password Password to log into the MySql Server with
+	 * 
+	 */
+	public MysqlConnection(String host, int port, String database, String username, String password)
+			throws InvalidConnectionDetailsException {
+		super(host, port, database, username, password);
+	}
 
-	
+	/**
+	 * Creates a {@link MysqlConnection} with given connection details and given
+	 * value for {@code autoReconnect}
+	 * 
+	 * @param host          Hostname of the MySql Server
+	 * @param port          Port of the MySql Server
+	 * @param database      Database to use
+	 * @param username      Username to log into the MySql Server with
+	 * @param password      Password to log into the MySql Server with
+	 * @param autoReconnect Enables/disables auto reconnect for this connection
+	 * 
+	 */
+	public MysqlConnection(String host, int port, String database, String username, String password,
+			boolean autoReconnect) throws InvalidConnectionDetailsException {
+		super(host, port, database, username, password, autoReconnect);
+	}
+
+	/**
+	 * Create a new {@link Connection} to a MySql Server
+	 * 
+	 */
+	@Override
+	protected Connection createConnection() throws SQLException {
+		return DriverManager.getConnection("jdbc:mysql://" + getHost() + ":" + getPort() + "/" + getDatabase()
+				+ "?autoReconnect=true&useTimezone=true&serverTimezone=UTC", getUsername(), getPassword());
+	}
+
+	/**
+	 * Set Default Values for Database connection
+	 * 
+	 * @throws InvalidConnectionDetailsException
+	 * 
+	 */
+	public void setDefaultConnectionDetails() throws InvalidConnectionDetailsException {
+		setConnectionDetails(DEFAULT_HOST, DEFAULT_PORT, DEFAULT_DATABASE, DEFAULT_USERNAME, DEFAULT_PASSWORD);
+	}
 
 }
