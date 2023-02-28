@@ -1,3 +1,6 @@
+# SqlLite Database used for testing
+test.db
+
 # From https://github.com/github/gitignore/blob/main/Maven.gitignore
 target/
 pom.xml.tag
