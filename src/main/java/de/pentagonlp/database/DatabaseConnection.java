@@ -217,6 +217,10 @@ public abstract class DatabaseConnection {
     	
     }
     
+    public ArrayList<HashMap<String, DataElement>> getTable(String sql) throws SQLException, NotConnectedException {
+    	return getTable(sql, new Object[] {});
+    }
+    
     /**
      * Fetch single row from Database
      * @param Sqlbefehl
@@ -233,6 +237,10 @@ public abstract class DatabaseConnection {
     	if (table.isEmpty())
     		return null;
     	return table.get(0);
+    }
+    
+    public HashMap<String, DataElement> fastget(String sql) throws SQLException, NotConnectedException {
+    	return fastget(sql, new Object[] {});
     }
 
 	public boolean autoReconnectActive() {
