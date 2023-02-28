@@ -38,7 +38,7 @@ public class DataElement {
 	}
 	
 	public boolean toBoolean() {
-		return Boolean.parseBoolean(value);
+		return Boolean.parseBoolean(value)||(!isNull()&&value.equals("1"));
 	}
 	
 	public boolean equals(String s) {

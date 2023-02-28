@@ -1,17 +1,17 @@
 package de.pentagonlp.database;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 
 import de.pentagonlp.database.exceptions.CouldNotReadDatabaseConfigException;
-import de.pentagonlp.database.exceptions.InvalidConnectionDetailsException;
 import de.pentagonlp.database.exceptions.NoConectionStatusChangeException;
 import de.pentagonlp.database.exceptions.NotConnectedException;
 
@@ -21,33 +21,15 @@ import de.pentagonlp.database.exceptions.NotConnectedException;
  */
 public abstract class DatabaseConnection {
 	
-	public static final String DEFAULT_HOST = "localhost";
-	public static final String DEFAULT_PORT = "3306";
-	public static final String DEFAULT_DATABASE = "";
-	public static final String DEFAULT_USERNAME = "root";
-	public static final String DEFAULT_PASSWORD = "";
+	private Connection con;
 	
-	private String host = "";
-	private String port = "";
-	private String database = "";
-	private String username = "";
-	private String password = "";
-    private Connection con;
-    
     private boolean autoReconnect = false;
-	
-    public DatabaseConnection() throws InvalidConnectionDetailsException {
-    	setDefaultConnectionValues();
-    }
     
-    public DatabaseConnection(String Host, String Port, String Database, String Username, String Password) throws InvalidConnectionDetailsException {
-    	setConnectionValues(Host, Port, Database, Username, Password);
-    }
+    public DatabaseConnection() {}
     
-	public DatabaseConnection(String Host, String Port, String Database, String Username, String Password, boolean autoRecon) throws InvalidConnectionDetailsException {
-		setConnectionValues(Host, Port, Database, Username, Password);
-		autoReconnect = autoRecon;
-	}
+    public DatabaseConnection(boolean autoReconnect) {
+    	this.autoReconnect = autoReconnect;
+    }
     
 	/**
 	 * Open Connection to Database
@@ -58,13 +40,13 @@ public abstract class DatabaseConnection {
 	 */
     public void open() throws NoConectionStatusChangeException, SQLException {
         if (isConnected()==false) {
-        	con = getConnection(host, port, database, username, password);
+        	con = getConnection();
         } else {
         	throw new NoConectionStatusChangeException("Already Connected!");
         }
     }
     
-    public abstract Connection getConnection(String host, String port, String database, String username, String password) throws SQLException;
+    protected abstract Connection getConnection() throws SQLException;
     
     /**
 	 * Close Connection to Database
@@ -84,89 +66,54 @@ public abstract class DatabaseConnection {
     
     /**
      * 
-     * Load Configuration from a file, specified by a path.<br>
-     * <br>
-     * {@code host=YOURHOST}<br>
-     * {@code port=YOURPORT}<br>
-     * {@code database=DATABASE}<br>
-     * {@code user=USERNAME}<br>
-     * {@code password=PASSWORD}<br>
-     * 
-     * @param path
-     * 
-     * @throws CouldNotReadDatabaseConfigException
-     * @throws FileNotFoundException
-     */
-    public void loadFromFile(String path) throws CouldNotReadDatabaseConfigException, FileNotFoundException {
-    	loadFromFile(new File(path));
-    }
-    
-    /**
-     * 
      * Load Configuration from a file, specified by a file.<br>
      * <br>
-     * {@code host=YOURHOST}<br>
-     * {@code port=YOURPORT}<br>
-     * {@code database=DATABASE}<br>
-     * {@code user=USERNAME}<br>
-     * {@code password=PASSWORD}<br>
+     * Expects list of entries in file following pattern {@code NAME=VALUE\n}<br>
+     * Can handle Comments starting with {@code #}
      * 
      * @param file
      * 
+     * @return HashMap with {@code NAME} as keys and {@code VALUE} as entries
+     * 
      * @throws CouldNotReadDatabaseConfigException
-     * @throws FileNotFoundException
+     * @throws IOException 
      */
-    public void loadFromFile(File file) throws CouldNotReadDatabaseConfigException, FileNotFoundException {
-			Scanner scanfile = new Scanner(file);
+    protected static HashMap<String, DataElement> readConfigurationFile(File file) throws CouldNotReadDatabaseConfigException, IOException {
+    	
+		HashMap<String, DataElement> result = new HashMap<>();
+		
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		
+		try {
 			
-			while (scanfile.hasNext()) {
-				String typ = "";
-				String wert = "";
-				typ = scanfile.next();
-				if (scanfile.hasNext()) {
-					wert = scanfile.next();
-					switch (typ) {
-						case "host=": host = wert; break;
-						case "port=": port = wert; break;
-						case "database=": database = wert; break;
-						case "user=": username = wert; break;
-						case "password=": password = wert; break;
-					}
-				} else if (!typ.equals("password=")) {
-					scanfile.close();
-					throw new CouldNotReadDatabaseConfigException("Missing " + typ);
-				} else {
-					password = "";
-				}
+			String line = reader.readLine();
+			
+			while (line!=null) {
+				
+				// Ignore Comments
+				if (line.startsWith("#"))
+					continue;
+				
+				String split[] = line.split("=");
+				
+				if (split.length!=2)
+					throw new CouldNotReadDatabaseConfigException(String.format("Line '%s' does not follow pattern 'NAME=VALUE'", line));
+				
+				result.put(split[0], new DataElement(split[1]));
+				
+				line = reader.readLine();
 			}
 			
-			scanfile.close();
+		} finally {
+			reader.close();
+		}
+		
+		return result;
+		
     }
     
-    /**
-     * 
-     * Set Connection Parameters
-     * 
-     * @param Host
-     * @param Port
-     * @param Database
-     * @param Username
-     * @param Password
-     * 
-     * @throws InvalidConnectionDetailsException
-     */
-    public void setConnectionValues(String Host, String Port, String Database, String Username, String Password) throws InvalidConnectionDetailsException {
-    	host = Host;
-    	port = Port;
-    	database = Database;
-    	username = Username;
-    	password = Password;
-    	try {
-    		autoReconnect();
-		} catch (SQLException e) {
-			throw new InvalidConnectionDetailsException(Host,Port,Database,Username,Password);
-		}
-    }
+    public abstract void loadConfigFromFile(String path) throws CouldNotReadDatabaseConfigException, IOException;
+    public abstract void loadConfigFromFile(File file) throws CouldNotReadDatabaseConfigException, IOException;
     
     /**
      * 
@@ -176,7 +123,7 @@ public abstract class DatabaseConnection {
      * 
      * @throws SQLException
      */
-    private boolean autoReconnect() throws SQLException {
+    protected boolean autoReconnect() throws SQLException {
     	if (autoReconnect) reconnect();
     	return autoReconnect;
     }
@@ -211,14 +158,7 @@ public abstract class DatabaseConnection {
     	return !(con==null);
     }
     
-    /**
-     * Set Default Values for Database connection
-     * @throws InvalidConnectionDetailsException 
-     * 
-     */
-    public void setDefaultConnectionValues() throws InvalidConnectionDetailsException {
-    	setConnectionValues(DEFAULT_HOST, DEFAULT_PORT, DEFAULT_DATABASE, DEFAULT_USERNAME, DEFAULT_PASSWORD);
-    }
+    
     
     /*
      * QUARRYS
@@ -244,12 +184,17 @@ public abstract class DatabaseConnection {
     		for (int i = 0; i<params.length; i++)
     			statement.setString(i+1, params[i].toString());
     		
+    		// TODO dejank this; somehow fetch type of result, eg. "update" or "select"
+    		if (!sql.toLowerCase().startsWith("select")) {
+    			statement.execute();
+    			return result;
+    		}
+    		
     		ResultSet sqlresult = statement.executeQuery();
     		
     		try {
     			
-    			// TODO dejank this; somehow fetch type of "result set", eg. "update" or "select"
-    			if (!sql.toLowerCase().startsWith("select")||!sqlresult.isBeforeFirst())
+    			if (!sqlresult.isBeforeFirst())
     				return result;
     			
     			while (sqlresult.next()) {
