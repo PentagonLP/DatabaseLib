@@ -22,19 +22,19 @@ public class MysqlConnectionTest {
 		
 		try {
 			mysql.open();
-			mysql.fastget("DROP DATABASE IF EXISTS databaselibtest");
+			mysql.getFirstRow("DROP DATABASE IF EXISTS databaselibtest");
 		
-			mysql.fastget("CREATE DATABASE databaselibtest CHARACTER SET utf8 COLLATE utf8_general_ci");
+			mysql.getFirstRow("CREATE DATABASE databaselibtest CHARACTER SET utf8 COLLATE utf8_general_ci");
 		
 			try {
-				mysql.fastget("USE databaselibtest");
+				mysql.getFirstRow("USE databaselibtest");
 		
-				mysql.fastget("CREATE TABLE `test` (`ID` int(11) NOT NULL AUTO_INCREMENT, `Data` varchar(16) DEFAULT NULL, PRIMARY KEY (`ID`)) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+				mysql.getFirstRow("CREATE TABLE `test` (`ID` int(11) NOT NULL AUTO_INCREMENT, `Data` varchar(16) DEFAULT NULL, PRIMARY KEY (`ID`)) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 				
 				assertEquals(mysql.getTable("SELECT * FROM test").isEmpty(), true, "getTable() fetched results from empty table");
-				assertEquals(mysql.fastget("SELECT * FROM test"), null, "fastget() fetched results from empty table");
+				assertEquals(mysql.getFirstRow("SELECT * FROM test"), null, "fastget() fetched results from empty table");
 				
-				mysql.fastget("INSERT INTO `test` (`ID`, `Data`) VALUES ('1', 'foobar'), ('2', '5'), ('3', '1'), ('4', NULL)");
+				mysql.getFirstRow("INSERT INTO `test` (`ID`, `Data`) VALUES ('1', 'foobar'), ('2', '5'), ('3', '1'), ('4', NULL)");
 				
 				ArrayList<HashMap<String, DataElement>> tableresults = mysql.getTable("SELECT * FROM test ORDER BY ID ASC");
 				
@@ -53,12 +53,12 @@ public class MysqlConnectionTest {
 				
 				assertEquals(tableresults.get(0).get("Data").toString(), "foobar", "getTable(): ID=1 (Data='foobar') failed to fetch String (with variable arguments)"); 
 				
-				assertEquals(mysql.fastget("SELECT * FROM test WHERE ID=1").get("Data").toString(), "foobar", "fastget(): ID=1 (Data='foobar') failed to fetch String (without variable arguments)");
-				assertEquals(mysql.fastget("SELECT * FROM test WHERE ID=?",1).get("Data").toString(), "foobar", "fastget(): ID=1 (Data='foobar') failed to fetch String (with variable arguments)");	
-				assertTrue(mysql.fastget("SELECT * FROM test WHERE ID=4").get("Data").isNull(), "fastget(): ID=4 (Data=NULL) is not 'null'");
+				assertEquals(mysql.getFirstRow("SELECT * FROM test WHERE ID=1").get("Data").toString(), "foobar", "fastget(): ID=1 (Data='foobar') failed to fetch String (without variable arguments)");
+				assertEquals(mysql.getFirstRow("SELECT * FROM test WHERE ID=?",1).get("Data").toString(), "foobar", "fastget(): ID=1 (Data='foobar') failed to fetch String (with variable arguments)");	
+				assertTrue(mysql.getFirstRow("SELECT * FROM test WHERE ID=4").get("Data").isNull(), "fastget(): ID=4 (Data=NULL) is not 'null'");
 			
 			} finally {
-				mysql.fastget("DROP DATABASE databaselibtest");
+				mysql.getFirstRow("DROP DATABASE databaselibtest");
 			}
 		
 		} finally {

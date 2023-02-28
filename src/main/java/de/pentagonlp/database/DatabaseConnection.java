@@ -16,6 +16,8 @@ import de.pentagonlp.database.exceptions.NoConectionStatusChangeException;
 import de.pentagonlp.database.exceptions.NotConnectedException;
 
 /**
+ * Super class for all database connections. Handels SQL queries, auto reconnects and loading connection details from a file.
+ * 
  * @author PentagonLP
  *
  */
@@ -25,14 +27,26 @@ public abstract class DatabaseConnection {
 	
     private boolean autoReconnect = false;
     
+    /**
+     * Construct {@link DatabaseConnection} Object
+     * <br>
+     * {@code autoReconnect} is set to {@code false}
+     * 
+     */
     public DatabaseConnection() {}
     
+    /**
+     * Construct {@link DatabaseConnection} Object
+     * 
+     * @param autoReconnect Specifies whether the database should automatically reconnect if the connection is lost
+     * 
+     */
     public DatabaseConnection(boolean autoReconnect) {
     	this.autoReconnect = autoReconnect;
     }
     
 	/**
-	 * Open Connection to Database
+	 * Open connection to database
 	 * 
 	 * @throws NoConectionStatusChangeException 
 	 * @throws SQLException 
@@ -49,7 +63,7 @@ public abstract class DatabaseConnection {
     protected abstract Connection getConnection() throws SQLException;
     
     /**
-	 * Close Connection to Database
+	 * Close connection to database
 	 * 
 	 * @throws NoConectionStatusChangeException 
 	 * @throws SQLException 
@@ -73,7 +87,7 @@ public abstract class DatabaseConnection {
      * 
      * @param file
      * 
-     * @return HashMap with {@code NAME} as keys and {@code VALUE} as entries
+     * @return {@link HashMap} with {@code NAME} as keys and {@code VALUE} as entries
      * 
      * @throws CouldNotReadDatabaseConfigException
      * @throws IOException 
@@ -119,7 +133,7 @@ public abstract class DatabaseConnection {
      * 
      * Reconnect if auto reconnect is active
      * 
-     * @return autoReconnect activ
+     * @return {@code boolean} whether autoReconnect active
      * 
      * @throws SQLException
      */
@@ -129,7 +143,6 @@ public abstract class DatabaseConnection {
     }
     
     /**
-     * 
      * Reconnect to Database
      * 
      * @throws SQLException
@@ -151,19 +164,24 @@ public abstract class DatabaseConnection {
     /**
      * Connected to Database?
      * 
-     * @return Connection status to Database
+     * @return Connection status to database as {@code boolean}
      * 
      */
     public boolean isConnected() { 
     	return !(con==null);
     }
     
-    
-    
-    /*
-     * QUARRYS
+    /**
+     * Fetch all rows of result from database
+     * 
+     * @param sql SQL Command; Use {@code ?} instead of non constant Parameters
+     * @param params Parameters in Order to replace the {@code ?} symbols in {@code sql}
+     * 
+     * @return {@link ArrayList} of rows; Each row is represented in a {@link HashMap} mapping column names to values in form of {@link DataElement DataElements}.
+     * @throws SQLException 
+     * @throws NotConnectedException 
+     * 
      */
-    
     public ArrayList<HashMap<String, DataElement>> getTable(String sql, Object...params) throws SQLException, NotConnectedException {
         
     	ArrayList<HashMap<String, DataElement>> result = new ArrayList<>();
@@ -217,21 +235,32 @@ public abstract class DatabaseConnection {
     	
     }
     
+    /**
+     * Fetch all rows of result from database
+     * 
+     * @param sql SQL command; Use of {@code ?} instead of non constant Parameters is not permitted
+     * 
+     * @return {@link ArrayList} of rows; Each row is represented in a {@link HashMap} mapping column names to values in form of {@link DataElement DataElements}.
+     * @throws SQLException 
+     * @throws NotConnectedException 
+     * 
+     */
     public ArrayList<HashMap<String, DataElement>> getTable(String sql) throws SQLException, NotConnectedException {
     	return getTable(sql, new Object[] {});
     }
     
     /**
-     * Fetch single row from Database
-     * @param Sqlbefehl
-     * @param Spalte
+     * Fetch only first row of result from database
      * 
-     * @return Hash Map with Values from Collums
+     * @param sql SQL Command; Use {@code ?} instead of non constant Parameters
+     * @param params Parameters in Order to replace the {@code ?} symbols in {@code sql}
+     * 
+     * @return First row of result, represented in a {@link HashMap} mapping column names to values in form of {@link DataElement DataElements}.
      * @throws SQLException 
      * @throws NotConnectedException 
      * 
      */
-    public HashMap<String, DataElement> fastget(String sql, Object...params) throws SQLException, NotConnectedException {
+    public HashMap<String, DataElement> getFirstRow(String sql, Object...params) throws SQLException, NotConnectedException {
     	ArrayList<HashMap<String, DataElement>> table = getTable(sql, params);
     	
     	if (table.isEmpty())
@@ -239,8 +268,18 @@ public abstract class DatabaseConnection {
     	return table.get(0);
     }
     
-    public HashMap<String, DataElement> fastget(String sql) throws SQLException, NotConnectedException {
-    	return fastget(sql, new Object[] {});
+    /**
+     * Fetch only first row of result from database
+     * 
+     * @param sql SQL command; Use of {@code ?} instead of non constant Parameters is not permitted
+     * 
+     * @return First row of result, represented in a {@link HashMap} mapping column names to values in form of {@link DataElement DataElements}.
+     * @throws SQLException 
+     * @throws NotConnectedException 
+     * 
+     */
+    public HashMap<String, DataElement> getFirstRow(String sql) throws SQLException, NotConnectedException {
+    	return getFirstRow(sql, new Object[] {});
     }
 
 	public boolean autoReconnectActive() {
