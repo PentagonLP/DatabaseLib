@@ -1,8 +1,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>de.pentagonlp.databaselib</groupId>
 	<artifactId>databaselib-core</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+
+	<name>DatabaseLib Core</name>
+	<description>Base dependency for PentagonLP's Database Library. Includes superclass for all drivers and other classes supporting it.</description>
+	<url>https://github.com/PentagonLP/DatabaseLib</url>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://github.com/PentagonLP/DatabaseLib/blob/master/LICENCE.md</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>PentagonLP</name>
+			<email>85071935+PentagonLP@users.noreply.github.com</email>
+			<url>https://github.com/PentagonLP</url>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/PentagonLP/DatabaseLib.git</connection>
+		<developerConnection>scm:git:ssh://github.com/PentagonLP/DatabaseLib.git</developerConnection>
+		<url>https://github.com/PentagonLP/DatabaseLib/tree/master/databaselib-core</url>
+	</scm>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -11,6 +38,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>

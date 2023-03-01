@@ -1,8 +1,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>de.pentagonlp.databaselib</groupId>
 	<artifactId>databaselib-serverconnection</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+
+	<name>DatabaseLib Serverconnection</name>
+	<description>Superclass for IP server based database connections</description>
+	<url>https://github.com/PentagonLP/DatabaseLib</url>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://github.com/PentagonLP/DatabaseLib/blob/master/LICENCE.md</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>PentagonLP</name>
+			<email>85071935+PentagonLP@users.noreply.github.com</email>
+			<url>https://github.com/PentagonLP</url>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/PentagonLP/DatabaseLib.git</connection>
+		<developerConnection>scm:git:ssh://github.com/PentagonLP/DatabaseLib.git</developerConnection>
+		<url>https://github.com/PentagonLP/DatabaseLib/tree/master/drivertypes/databaselib-serverconnection</url>
+	</scm>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -16,6 +43,7 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
