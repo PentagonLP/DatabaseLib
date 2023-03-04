@@ -237,8 +237,13 @@ public abstract class DatabaseConnection {
 		PreparedStatement statement = con.prepareStatement(sql);
 
 		try {
-			for (int i = 0; i < params.length; i++)
+			for (int i = 0; i < params.length; i++) {
+				if (params[i]==null) {
+					statement.setString(i + 1, null);
+					continue;
+				}
 				statement.setString(i + 1, params[i].toString());
+			}
 
 			// TODO dejank this; somehow fetch type of result, eg. "update" or "select"
 			if (!sql.toLowerCase().startsWith("select")) {
